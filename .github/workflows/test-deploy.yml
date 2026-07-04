@@ -1,0 +1,21 @@
+name: Test Deploy
+on:
+  workflow_dispatch:
+jobs:
+  deploy:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Create test file
+        run: |
+          mkdir -p dist/test
+          echo "PeDitXOS GitHub Actions upload test - $(date)" > dist/test/test.txt
+          echo '{"status":"ok","source":"github-actions"}' > dist/test/status.json
+
+      - name: Deploy to Server
+        run: |
+          mkdir -p ~/.ssh
+          echo "${{ secrets.SERVER_SSH_KEY }}" > ~/.ssh/id_ed25519
+          chmod 600 ~/.ssh/id_ed25519
+          ssh-keyscan -p ${{ secrets.SERVER_SSH_PORT || 22 }} ${{ secrets.SERVER_HOST }} >> ~/.ssh/known_hosts 2>/dev/null
+          rsync -avz --delete -e "ssh -p ${{ secrets.SERVER_SSH_PORT || 22 }}" dist/test/ ${{ secrets.SERVER_USER }}@${{ secrets.SERVER_HOST }}:/opt/peditx-repo/nginx/www/openwrt-passwall-build/test/
+          rm -rf ~/.ssh/id_ed25519
