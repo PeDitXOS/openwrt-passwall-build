@@ -98,8 +98,6 @@ jobs:
             src-git|peditx_themes|https://github.com/peditx/luci-theme-peditx^main
             src-git|peditx_carbon|https://github.com/peditx/luci-theme-carbonpx^main
             src-git|peditx_switch|https://github.com/peditx/luci-app-themeswitch^main
-          KEY_BUILD: ${{ secrets.SIGN_PRIV_KEY }}
-          PRIVATE_KEY: ${{ secrets.APK_PRIVATE_KEY }}
           V: s
           IGNORE_ERRORS: n m y
           BUILD_LOG: 1
