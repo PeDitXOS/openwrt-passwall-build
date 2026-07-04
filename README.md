@@ -22,7 +22,7 @@ In addition to the standard passwall packages, this build also includes:
 
     ```sh
     wget -O /etc/apk/keys/openwrt-passwall-build.pem \
-      https://repository.peditxos.ir/openwrt-passwall-build/snapshots/packages/x86_64/apk.pub
+      https://repository.peditxos.ir/openwrt-passwall-build/apk.pub
     ```
 
 2. Add apk repository:
@@ -61,7 +61,7 @@ In addition to the standard passwall packages, this build also includes:
 1. Add new opkg key:
 
     ```sh
-    wget -O ipk.pub https://repository.peditxos.ir/openwrt-passwall-build/snapshots/packages/x86_64/ipk.pub
+    wget -O ipk.pub https://repository.peditxos.ir/openwrt-passwall-build/ipk.pub
     opkg-key add ipk.pub
     ```
 
