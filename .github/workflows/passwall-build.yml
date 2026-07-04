@@ -16,6 +16,8 @@ jobs:
       matrix:
         ref:
           - main
+          - openwrt-23.05
+          - openwrt-24.10
     steps:
       - name: Checkout
         uses: actions/checkout@v7
