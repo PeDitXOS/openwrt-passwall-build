@@ -35,19 +35,15 @@ jobs:
 
           # sdks
           JSON='['
-          FIRST=1
 
           while read -r line;
           do
             ARCH=$(echo "$line" | cut -d " " -f 1)
-
-            [[ $FIRST -ne 1 ]] && JSON="$JSON"','
-            FIRST=0
-
-            JSON="$JSON"'{"arch":"'"$ARCH"'","ref":"'"$REF"'"}'
+            JSON="${JSON}{\"arch\":\"${ARCH}\",\"ref\":\"${REF}\"},"
           done <<< $(perl ./scripts/dump-target-info.pl architectures 2>/dev/null)
 
-          JSON="$JSON"]"
+          # Remove trailing comma and close array
+          JSON="${JSON%,}]"
           echo -e "\n---- sdks ----\n"
           echo "$JSON"
           echo -e "\n---- sdks ----\n"
