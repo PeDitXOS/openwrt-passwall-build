@@ -1,0 +1,88 @@
+name: Test SDK Matrix
+on:
+  workflow_dispatch:
+jobs:
+  generate_matrix:
+    name: Set matrix
+    runs-on: ubuntu-latest
+    outputs:
+      sdks: ${{ steps.out.outputs.sdks }}
+    strategy:
+      matrix:
+        ref:
+          - main
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v7
+        with:
+          repository: openwrt/openwrt
+          ref: ${{ matrix.ref }}
+
+      - name: Set targets
+        id: find_targets
+        run: |
+          REF=${{ matrix.ref }}
+          JSON='['
+          FIRST=1
+          while read -r line;
+          do
+            ARCH=$(echo "$line" | cut -d " " -f 1)
+            [[ $FIRST -ne 1 ]] && JSON="$JSON"','
+            FIRST=0
+            JSON="$JSON"'{"arch":"'"$ARCH"'","ref":"'"$REF"'"}'
+          done <<< $(perl ./scripts/dump-target-info.pl architectures 2>/dev/null | head -3)
+          JSON="$JSON"']'
+          echo "sdks=$JSON" >> "$GITHUB_OUTPUT"
+
+      - uses: cloudposse/github-action-matrix-outputs-write@main
+        id: out
+        with:
+          matrix-step-name: ${{ github.job }}
+          matrix-key: ${{ matrix.ref }}
+          outputs: |-
+            sdks: ${{ steps.find_targets.outputs.sdks }}
+
+  gather_matrix:
+    name: Gather
+    runs-on: ubuntu-latest
+    needs: generate_matrix
+    outputs:
+      result: ${{ steps.gather.outputs.result }}
+    steps:
+      - uses: cloudposse/github-action-matrix-outputs-read@main
+        id: read
+        with:
+          matrix-step-name: generate_matrix
+      - name: Gather
+        id: gather
+        run: |
+          result=$(jq -c '.sdks[]' <<< '${{ steps.read.outputs.result }}' | jq -c -s add)
+          echo "result=${result}" >> $GITHUB_OUTPUT
+
+  release:
+    name: Build ${{ matrix.arch }}-${{ matrix.ref }}
+    runs-on: ubuntu-latest
+    needs: gather_matrix
+    strategy:
+      fail-fast: false
+      matrix:
+        include: ${{ fromJson(needs.gather_matrix.outputs.result) }}
+    steps:
+      - uses: jlumbroso/free-disk-space@main
+        with:
+          swap-storage: false
+      - uses: actions/setup-python@v6
+        with:
+          python-version: "3.x"
+      - uses: actions/checkout@v7
+      - name: Build Package
+        uses: moetayuko/gh-action-sdk@main
+        env:
+          ARCH: ${{ matrix.arch }}-${{ matrix.ref }}
+          EXTRA_FEEDS: >-
+            src-git|passwall_packages|https://github.com/Openwrt-Passwall/openwrt-passwall-packages
+            src-git|passwall_luci|https://github.com/Openwrt-Passwall/openwrt-passwall
+            src-git|passwall2|https://github.com/Openwrt-Passwall/openwrt-passwall2
+          V: s
+          IGNORE_ERRORS: n m y
+          BUILD_LOG: 1
