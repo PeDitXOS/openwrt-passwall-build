@@ -90,20 +90,6 @@ jobs:
         run: pip3 install nvchecker
       - name: Checkout
         uses: actions/checkout@v7
-      - name: Get build path
-        id: get_build_path
-        run: |
-          REF=${{ matrix.ref }}
-          if [[ $REF == openwrt-* ]]; then
-            VERSION=${REF//openwrt-/}
-            pkg=releases/packages-$VERSION
-            log=releases/faillogs-$VERSION
-          else
-            pkg=snapshots/packages
-            log=snapshots/faillogs
-          fi
-          echo "pkg=$pkg" >> "$GITHUB_OUTPUT"
-          echo "log=$log" >> "$GITHUB_OUTPUT"
       - name: Retrieve Version
         id: ver
         run: |
@@ -137,8 +123,15 @@ jobs:
           cat ../../../logs.txt 2>/dev/null || true
       - name: Prepare Output Folder
         run: |
-          PKG_DIR=${{ steps.get_build_path.outputs.pkg }}/${{ matrix.arch }}
-          LOG_DIR=${{ steps.get_build_path.outputs.log }}/${{ matrix.arch }}
+          REF=${{ matrix.ref }}
+          if [[ $REF == openwrt-* ]]; then
+            VERSION=${REF//openwrt-/}
+            PKG_DIR=releases/packages-$VERSION/${{ matrix.arch }}
+            LOG_DIR=releases/faillogs-$VERSION/${{ matrix.arch }}
+          else
+            PKG_DIR=snapshots/packages/${{ matrix.arch }}
+            LOG_DIR=snapshots/faillogs/${{ matrix.arch }}
+          fi
           mkdir -p dist/$PKG_DIR dist/$LOG_DIR
           rsync -av bin/packages/${{ matrix.arch }}/passwall* dist/$PKG_DIR/ 2>/dev/null || true
           rsync -av bin/packages/${{ matrix.arch }}/luci-theme-peditx* dist/$PKG_DIR/ 2>/dev/null || true
