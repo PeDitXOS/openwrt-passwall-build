@@ -16,6 +16,11 @@ jobs:
       matrix:
         ref:
           - main
+          - openwrt-21.02
+          - openwrt-22.03
+          - openwrt-23.05
+          - openwrt-24.10
+          - openwrt-25.12
     steps:
       - name: Checkout
         uses: actions/checkout@v7
@@ -98,9 +103,9 @@ jobs:
         env:
           ARCH: ${{ matrix.arch }}-${{ matrix.ref }}
           EXTRA_FEEDS: >-
-            src-git|passwall_packages|https://github.com/Openwrt-Passwall/openwrt-passwall-packages^${{ steps.ver.outputs.packages }}
-            src-git|passwall_luci|https://github.com/Openwrt-Passwall/openwrt-passwall^${{ steps.ver.outputs.passwall }}
-            src-git|passwall2|https://github.com/Openwrt-Passwall/openwrt-passwall2^${{ steps.ver.outputs.passwall2 }}
+            src-git|passwall_packages|https://github.com/Openwrt-Passwall/openwrt-passwall-packages
+            src-git|passwall_luci|https://github.com/Openwrt-Passwall/openwrt-passwall
+            src-git|passwall2|https://github.com/Openwrt-Passwall/openwrt-passwall2
             src-git|peditx_themes|https://github.com/peditx/luci-theme-peditx^main
             src-git|peditx_carbon|https://github.com/peditx/luci-theme-carbonpx^main
             src-git|peditx_switch|https://github.com/peditx/luci-app-themeswitch^main
@@ -140,3 +145,27 @@ jobs:
           name: openwrt-passwall-${{ matrix.arch }}-${{ matrix.ref }}
           path: dist/
           retention-days: 7
+
+  deploy:
+    name: Deploy to Server
+    runs-on: ubuntu-latest
+    needs: release
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v7
+      - name: Fetch All Builds
+        uses: actions/download-artifact@v8
+        with:
+          path: dist
+          pattern: openwrt-passwall-*
+          merge-multiple: true
+      - name: Add public keys
+        run: cp apk.pub ipk.pub dist/
+      - name: Deploy to Server
+        run: |
+          mkdir -p ~/.ssh
+          echo "${{ secrets.SERVER_SSH_KEY }}" > ~/.ssh/id_ed25519
+          chmod 600 ~/.ssh/id_ed25519
+          ssh-keyscan -p ${{ secrets.SERVER_SSH_PORT || 22 }} ${{ secrets.SERVER_HOST }} >> ~/.ssh/known_hosts 2>/dev/null
+          rsync -avz --delete -e "ssh -p ${{ secrets.SERVER_SSH_PORT || 22 }}" dist/ ${{ secrets.SERVER_USER }}@${{ secrets.SERVER_HOST }}:/opt/peditx-repo/nginx/www/openwrt-passwall-build/
+          rm -rf ~/.ssh/id_ed25519
