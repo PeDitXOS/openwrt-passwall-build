@@ -47,9 +47,6 @@ jobs:
           done <<< $(perl ./scripts/dump-target-info.pl architectures 2>/dev/null)
 
           JSON="$JSON"']'
-          echo -e "\n---- sdks ----\n"
-          echo "$JSON"
-          echo -e "\n---- sdks ----\n"
           echo "sdks=$JSON" >> "$GITHUB_OUTPUT"
 
       - uses: cloudposse/github-action-matrix-outputs-write@main
@@ -78,7 +75,7 @@ jobs:
           echo "result=${result}" >> $GITHUB_OUTPUT
 
   release:
-    name: Build for ${{ matrix.arch }}-${{ matrix.ref }}
+    name: Build ${{ matrix.arch }}-${{ matrix.ref }}
     runs-on: ubuntu-latest
     needs: gather_matrix
     strategy:
@@ -154,6 +151,7 @@ jobs:
           cat ../../../logs.txt 2>/dev/null || true
 
       - name: Prepare Output Folder
+        working-directory: ${{ github.workspace }}
         run: |
           PKG_DIR=${{ steps.get_build_path.outputs.pkg }}/${{ matrix.arch }}
           LOG_DIR=${{ steps.get_build_path.outputs.log }}/${{ matrix.arch }}
@@ -174,8 +172,7 @@ jobs:
           retention-days: 7
 
   deploy:
-    concurrency:
-      group: deploy
+    name: Deploy to Server
     runs-on: ubuntu-latest
     needs: release
     steps:
