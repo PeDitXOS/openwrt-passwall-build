@@ -21,7 +21,7 @@ In addition to the standard passwall packages, this build also includes:
 
     ```sh
     wget -O /etc/apk/keys/openwrt-passwall-build.pem \
-      https://repo.peditxos.ir/openwrt-passwall-build/apk.pub
+      https://repository.peditxos.ir/openwrt-passwall-build/apk.pub
     ```
 
 2. Add apk repository:
@@ -31,7 +31,7 @@ In addition to the standard passwall packages, this build also includes:
     $(. /etc/openwrt_release ; echo ${DISTRIB_RELEASE%.*} $DISTRIB_ARCH)
     EOF
     for feed in passwall_luci passwall_packages passwall2 peditx_themes peditx_carbon peditx_switch; do
-      echo "https://repo.peditxos.ir/openwrt-passwall-build/releases/packages-$release/$arch/$feed/packages.adb" >> /etc/apk/repositories.d/customfeeds.list
+      echo "https://repository.peditxos.ir/openwrt-passwall-build/releases/packages-$release/$arch/$feed/packages.adb" >> /etc/apk/repositories.d/customfeeds.list
     done
     ```
 
@@ -42,7 +42,7 @@ In addition to the standard passwall packages, this build also includes:
     $(. /etc/openwrt_release ; echo $DISTRIB_ARCH)
     EOF
     for feed in passwall_luci passwall_packages passwall2 peditx_themes peditx_carbon peditx_switch; do
-      echo "https://repo.peditxos.ir/openwrt-passwall-build/snapshots/packages/$arch/$feed/packages.adb" >> /etc/apk/repositories.d/customfeeds.list
+      echo "https://repository.peditxos.ir/openwrt-passwall-build/snapshots/packages/$arch/$feed/packages.adb" >> /etc/apk/repositories.d/customfeeds.list
     done
     ```
 
@@ -58,7 +58,7 @@ In addition to the standard passwall packages, this build also includes:
 1. Add new opkg key:
 
     ```sh
-    wget -O ipk.pub https://repo.peditxos.ir/openwrt-passwall-build/ipk.pub
+    wget -O ipk.pub https://repository.peditxos.ir/openwrt-passwall-build/ipk.pub
     opkg-key add ipk.pub
     ```
 
@@ -69,7 +69,7 @@ In addition to the standard passwall packages, this build also includes:
     $(. /etc/openwrt_release ; echo ${DISTRIB_RELEASE%.*} $DISTRIB_ARCH)
     EOF
     for feed in passwall_luci passwall_packages passwall2 peditx_themes peditx_carbon peditx_switch; do
-      echo "src/gz $feed https://repo.peditxos.ir/openwrt-passwall-build/releases/packages-$release/$arch/$feed" >> /etc/opkg/customfeeds.conf
+      echo "src/gz $feed https://repository.peditxos.ir/openwrt-passwall-build/releases/packages-$release/$arch/$feed" >> /etc/opkg/customfeeds.conf
     done
     ```
 
