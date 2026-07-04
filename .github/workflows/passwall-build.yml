@@ -28,25 +28,16 @@ jobs:
         id: find_targets
         run: |
           REF=${{ matrix.ref }}
-
-          # sdks
           JSON='['
           FIRST=1
-
           while read -r line;
           do
             ARCH=$(echo "$line" | cut -d " " -f 1)
-
             [[ $FIRST -ne 1 ]] && JSON="$JSON"','
             FIRST=0
-
             JSON="$JSON"'{"arch":"'"$ARCH"'","ref":"'"$REF"'"}'
           done <<< $(perl ./scripts/dump-target-info.pl architectures 2>/dev/null)
-
           JSON="$JSON"']'
-          echo -e "\n---- sdks ----\n"
-          echo "$JSON"
-          echo -e "\n---- sdks ----\n"
           echo "sdks=$JSON" >> "$GITHUB_OUTPUT"
 
       - uses: cloudposse/github-action-matrix-outputs-write@main
@@ -73,8 +64,6 @@ jobs:
         run: |
           result=$(jq -c '.sdks[]' <<< '${{ steps.read.outputs.result }}' | jq -c -s add)
           echo "result=${result}" >> $GITHUB_OUTPUT
-
- 
 
   release:
     name: Build for ${{ matrix.arch }}-${{ matrix.ref }}
@@ -107,12 +96,10 @@ jobs:
         run: |
           REF=${{ matrix.ref }}
           if [[ $REF == openwrt-* ]]; then
-            # openwrt-22.03 -> releases/packages-22.03
             VERSION=${REF//openwrt-/}
             pkg=releases/packages-$VERSION
             log=releases/faillogs-$VERSION
           else
-            # master -> snapshots/packages
             pkg=snapshots/packages
             log=snapshots/faillogs
           fi
@@ -126,7 +113,6 @@ jobs:
           vers=$(nvcmp -c nvchecker.toml -aj)
           jq -cr 'map("\(.name)=\(.newver)") | .[]' <<< $vers >> $GITHUB_OUTPUT
 
-      # Use go from master
       - name: Override golang version
         run: echo "GOLANG_COMMIT=master" >> $GITHUB_ENV
 
@@ -149,14 +135,12 @@ jobs:
 
       - name: Finding failure logs
         if: always()
-        working-directory: logs/package/feeds
         run: |
-          if [ -d . ]; then
+          if [ -d "logs/package/feeds" ]; then
+            cd logs/package/feeds
             sed -ne 's!^ *ERROR: package/feeds/\(passwall[^ ]*\) .*$!\1!p' ../error.txt | sort -u | xargs -r find > ../../../logs.txt 2>/dev/null || true
             sed -ne 's!^ *ERROR: package/feeds/\(peditx[^ ]*\) .*$!\1!p' ../error.txt | sort -u | xargs -r find >> ../../../logs.txt 2>/dev/null || true
             cat ../../../logs.txt 2>/dev/null || true
-          else
-            echo "No failure logs directory"
           fi
 
       - name: Prepare Output Folder
@@ -170,9 +154,7 @@ jobs:
           rsync -av bin/packages/${{ matrix.arch }}/luci-theme-carbonpx* dist/$PKG_DIR/ 2>/dev/null || true
           rsync -av bin/packages/${{ matrix.arch }}/luci-app-themeswitch* dist/$PKG_DIR/ 2>/dev/null || true
           rsync -av --files-from=logs.txt logs/package/feeds/ dist/$LOG_DIR/ 2>/dev/null || true
-
-      - name: Add public keys
-        run: cp apk.pub ipk.pub dist/
+          cp apk.pub ipk.pub dist/
 
       - name: Upload Output Folder
         uses: actions/upload-artifact@v7
