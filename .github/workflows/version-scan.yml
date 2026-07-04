@@ -41,3 +41,4 @@ jobs:
             passwall: Openwrt-Passwall/openwrt-passwall@${{ steps.compare_version.outputs.passwall }}
             passwall2: Openwrt-Passwall/openwrt-passwall2@${{ steps.compare_version.outputs.passwall2 }}
             packages: Openwrt-Passwall/openwrt-passwall-packages@${{ steps.compare_version.outputs.packages }}
+
