@@ -4,8 +4,9 @@ Binary distribution of [Openwrt-Passwall/openwrt-passwall](https://github.com/Op
 
 Based on [moetayuko/openwrt-passwall-build](https://github.com/moetayuko/openwrt-passwall-build) — with added PeDitX theme packages.
 
-[![Passwall Build](https://github.com/peditxos-passwall/openwrt-passwall-build/actions/workflows/passwall-build.yml/badge.svg)](https://github.com/peditxos-passwall/openwrt-passwall-build/actions/workflows/passwall-build.yml)
-[![Scan openwrt-passwall Version](https://github.com/peditxos-passwall/openwrt-passwall-build/actions/workflows/version-scan.yml/badge.svg)](https://github.com/peditxos-passwall/openwrt-passwall-build/actions/workflows/version-scan.yml)
+[![Passwall Build](https://github.com/PeDitXOS/openwrt-passwall-build/actions/workflows/passwall-build.yml/badge.svg)](https://github.com/PeDitXOS/openwrt-passwall-build/actions/workflows/passwall-build.yml)
+[![Passwall Test](https://github.com/PeDitXOS/openwrt-passwall-build/actions/workflows/passwall-test.yml/badge.svg)](https://github.com/PeDitXOS/openwrt-passwall-build/actions/workflows/passwall-test.yml)
+[![Scan openwrt-passwall Version](https://github.com/PeDitXOS/openwrt-passwall-build/actions/workflows/version-scan.yml/badge.svg)](https://github.com/PeDitXOS/openwrt-passwall-build/actions/workflows/version-scan.yml)
 
 ## What's included
 
@@ -100,7 +101,7 @@ In addition to the standard passwall packages, this build also includes:
 
 ## Credits
 
-- [PeDitXOS](https://github.com/peditx) — Project maintainer and build infrastructure
+- [PeDitXOS](https://github.com/PeDitXOS) — Project maintainer and build infrastructure
 - [moetayuko/openwrt-passwall-build](https://github.com/moetayuko/openwrt-passwall-build) — Original build system and CI workflows
 - [Openwrt-Passwall](https://github.com/Openwrt-Passwall/openwrt-passwall) — Passwall project
 - [kuoruan/openwrt-v2ray](https://github.com/kuoruan/openwrt-v2ray) — Inspiration for this project
