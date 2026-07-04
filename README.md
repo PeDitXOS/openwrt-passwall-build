@@ -5,6 +5,7 @@ Binary distribution of [Openwrt-Passwall/openwrt-passwall](https://github.com/Op
 Based on [moetayuko/openwrt-passwall-build](https://github.com/moetayuko/openwrt-passwall-build) — with added PeDitX theme packages.
 
 [![Passwall Build](https://github.com/PeDitXOS/openwrt-passwall-build/actions/workflows/passwall-build.yml/badge.svg)](https://github.com/PeDitXOS/openwrt-passwall-build/actions/workflows/passwall-build.yml)
+[![Passwall Test](https://github.com/PeDitXOS/openwrt-passwall-build/actions/workflows/passwall-test.yml/badge.svg)](https://github.com/PeDitXOS/openwrt-passwall-build/actions/workflows/passwall-test.yml)
 
 ## What's included
 
