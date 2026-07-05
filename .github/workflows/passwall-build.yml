@@ -89,6 +89,14 @@ jobs:
         with:
           swap-storage: false
 
+      - name: Setup Python 3
+        uses: actions/setup-python@v6
+        with:
+          python-version: "3.x"
+
+      - name: Install nvchecker
+        run: pip3 install nvchecker
+
       - name: Checkout
         uses: actions/checkout@v7
 
@@ -107,6 +115,13 @@ jobs:
           echo "pkg=$pkg" >> "$GITHUB_OUTPUT"
           echo "log=$log" >> "$GITHUB_OUTPUT"
 
+      - name: Retrieve Version
+        id: ver
+        run: |
+          cp cur_ver.json new_ver.json
+          vers=$(nvcmp -c nvchecker.toml -aj)
+          jq -cr 'map("\(.name)=\(.newver)") | .[]' <<< $vers >> $GITHUB_OUTPUT
+
       - name: Override golang version
         run: echo "GOLANG_COMMIT=master" >> $GITHUB_ENV
 
@@ -115,12 +130,14 @@ jobs:
         env:
           ARCH: ${{ matrix.arch }}-${{ matrix.ref == 'openwrt-23.05' && '23.05.6' || matrix.ref }}
           EXTRA_FEEDS: >-
-            src-git|passwall_packages|https://github.com/Openwrt-Passwall/openwrt-passwall-packages^main
-            src-git|passwall_luci|https://github.com/Openwrt-Passwall/openwrt-passwall^main
-            src-git|passwall2|https://github.com/Openwrt-Passwall/openwrt-passwall2^main
+            src-git|passwall_packages|https://github.com/Openwrt-Passwall/openwrt-passwall-packages^${{ steps.ver.outputs.packages }}
+            src-git|passwall_luci|https://github.com/Openwrt-Passwall/openwrt-passwall^${{ steps.ver.outputs.passwall }}
+            src-git|passwall2|https://github.com/Openwrt-Passwall/openwrt-passwall2^${{ steps.ver.outputs.passwall2 }}
             src-git|peditx_themes|https://github.com/peditx/luci-theme-peditx^main
             src-git|peditx_carbon|https://github.com/peditx/luci-theme-carbonpx^main
             src-git|peditx_switch|https://github.com/peditx/luci-app-themeswitch^main
+          KEY_BUILD: ${{ secrets.SIGN_PRIV_KEY }}
+          PRIVATE_KEY: ${{ secrets.APK_PRIVATE_KEY }}
           V: s
           IGNORE_ERRORS: n m y
           BUILD_LOG: 1
