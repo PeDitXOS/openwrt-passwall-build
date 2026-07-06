@@ -163,6 +163,18 @@ jobs:
           rsync -av --files-from=logs.txt logs/package/feeds/ dist/$LOG_DIR/ 2>/dev/null || true
           cp apk.pub ipk.pub dist/
 
+          # Generate APKINDEX.tar.gz for APK-based OpenWrt (25.12+)
+          if [[ "${{ matrix.ref }}" == "openwrt-25.12" || "${{ matrix.ref }}" == "main" ]]; then
+            echo "Generating APKINDEX.tar.gz for ${{ matrix.ref }}..."
+            docker run --rm -v "$(pwd)/dist/$PKG_DIR":/repo alpine:latest sh -c '
+              apk add --no-cache apk-tools 2>/dev/null
+              cd /repo
+              find . -name "*.apk" -not -name "APKINDEX*" | head -1
+              apk index --output APKINDEX.tar.gz --description "Passwall + PeDitX Packages" $(find . -name "*.apk" -not -name "APKINDEX*") 2>&1
+              ls -la APKINDEX.tar.gz 2>/dev/null || echo "APKINDEX generation failed"
+            '
+          fi
+
       - name: Upload Output Folder
         uses: actions/upload-artifact@v7
         with:
