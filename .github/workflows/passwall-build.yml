@@ -153,8 +153,6 @@ jobs:
           V: s
           IGNORE_ERRORS: n m y
           BUILD_LOG: 1
-          KEY_BUILD: ${{ secrets.SIGN_PRIV_KEY }}
-          PRIVATE_KEY: ${{ secrets.APK_PRIVATE_KEY }}
 
       - name: Finding failure logs
         if: always()
