@@ -75,8 +75,12 @@ jobs:
       - name: Gather matrices
         id: gather
         run: |
-          result=$(jq -c '.sdks[]' <<< '${{ steps.read.outputs.result }}' | jq -c -s add)
-          echo "result=${result}" >> $GITHUB_OUTPUT
+          RAW_DATA='${{ steps.read.outputs.result }}'
+          result=$(echo "$RAW_DATA" | jq -c '[ .[] | .sdks | fromjson ] | flatten')
+          echo "=== MATRIX RESULT ==="
+          echo "$result"
+          echo "====================="
+          echo "result=${result}" >> "$GITHUB_OUTPUT"
 
   release:
     name: Build for ${{ matrix.arch }}-${{ matrix.ref }}
