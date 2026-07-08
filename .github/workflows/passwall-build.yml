@@ -44,7 +44,7 @@ jobs:
             [[ $FIRST -ne 1 ]] && JSON="$JSON"','
             FIRST=0
 
-            JSON="$JSON"'"{"arch":"'"$ARCH"'","ref":"'"$REF"'"}'
+            JSON="$JSON"'{"arch":"'"$ARCH"'","ref":"'"$REF"'"}'
           done <<< $(perl ./scripts/dump-target-info.pl architectures 2>/dev/null)
 
           JSON="$JSON"']'
