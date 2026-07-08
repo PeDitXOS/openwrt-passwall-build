@@ -3,3 +3,7 @@
 openwrt-PXgames/
 peditx-official-site/
 pxgames-site/
+
+# Private keys (secrets, not in git)
+key-build.sec
+apk.pem
