@@ -150,6 +150,7 @@ jobs:
             src-git|peditx_themes|https://github.com/peditx/luci-theme-peditx^3bf84984046e540a388cbd402e17a8019f807793
             src-git|peditx_carbon|https://github.com/peditx/luci-theme-carbonpx^137ce1b0fd63d3d780ddd2dfd133b37a0268a2c9
             src-git|peditx_switch|https://github.com/peditx/luci-app-themeswitch^10866a17b9e235024b934d349d3daaa6921114a4
+            src-git|peditxos_tools|https://${{ secrets.PAT }}@github.com/PeDitXOS/peditxos-tools^40cae3c57bd87fda8e9c5040e756e57346b0ef99
           V: s
           IGNORE_ERRORS: n m y
           BUILD_LOG: 1
