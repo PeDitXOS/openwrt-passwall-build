@@ -150,12 +150,9 @@ jobs:
             src-git|peditx_themes|https://github.com/peditx/luci-theme-peditx^3bf84984046e540a388cbd402e17a8019f807793
             src-git|peditx_carbon|https://github.com/peditx/luci-theme-carbonpx^137ce1b0fd63d3d780ddd2dfd133b37a0268a2c9
             src-git|peditx_switch|https://github.com/peditx/luci-app-themeswitch^10866a17b9e235024b934d349d3daaa6921114a4
-            src-git|peditxos_tools|https://${{ secrets.PAT }}@github.com/PeDitXOS/peditxos-tools^40cae3c57bd87fda8e9c5040e756e57346b0ef99
           V: s
           IGNORE_ERRORS: n m y
           BUILD_LOG: 1
-          KEY_BUILD: ${{ secrets.SIGN_PRIV_KEY }}
-          PRIVATE_KEY: ${{ secrets.APK_PRIVATE_KEY }}
 
       - name: Finding failure logs
         if: always()
@@ -177,7 +174,6 @@ jobs:
           rsync -av bin/packages/${{ matrix.arch }}/luci-theme-peditx* dist/$PKG_DIR/ 2>/dev/null || true
           rsync -av bin/packages/${{ matrix.arch }}/luci-theme-carbonpx* dist/$PKG_DIR/ 2>/dev/null || true
           rsync -av bin/packages/${{ matrix.arch }}/luci-app-themeswitch* dist/$PKG_DIR/ 2>/dev/null || true
-          rsync -av bin/packages/${{ matrix.arch }}/luci-app-peditxos-tools* dist/$PKG_DIR/ 2>/dev/null || true
           rsync -av --files-from=logs.txt logs/package/feeds/ dist/$LOG_DIR/ 2>/dev/null || true
           cp apk.pub ipk.pub dist/
 
