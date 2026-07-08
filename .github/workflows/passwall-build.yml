@@ -115,6 +115,19 @@ jobs:
           echo "pkg=$pkg" >> "$GITHUB_OUTPUT"
           echo "log=$log" >> "$GITHUB_OUTPUT"
 
+      - name: Setup APK signing key
+        if: matrix.ref == 'openwrt-25.12' || matrix.ref == 'main'
+        run: |
+          # Write private key from GitHub Secret
+          if [ -n "${{ secrets.APK_PRIVATE_KEY }}" ]; then
+            echo "${{ secrets.APK_PRIVATE_KEY }}" > apk.pem
+            chmod 600 apk.pem
+            echo "APK signing key installed"
+          else
+            echo "WARNING: APK_PRIVATE_KEY secret not set, APKINDEX will be unsigned"
+          fi
+        env:
+          APK_PRIVATE_KEY: ${{ secrets.APK_PRIVATE_KEY }}
 
       - name: Retrieve Version
         id: ver
@@ -168,7 +181,40 @@ jobs:
           rsync -av --files-from=logs.txt logs/package/feeds/ dist/$LOG_DIR/ 2>/dev/null || true
           cp apk.pub ipk.pub dist/
 
-
+          # Generate signed APKINDEX.tar.gz for APK-based OpenWrt (25.12+)
+          if [[ "${{ matrix.ref }}" == "openwrt-25.12" || "${{ matrix.ref }}" == "main" ]]; then
+            echo "Generating signed APKINDEX.tar.gz for ${{ matrix.ref }}..."
+            # Copy the private key to use for signing
+            if [ -f apk.pem ]; then
+              docker run --rm -v "$(pwd)/dist/$PKG_DIR":/repo -v "$(pwd)/apk.pem":/apk.pem alpine:latest sh -c '
+                apk add --no-cache apk-tools 2>/dev/null
+                cd /repo
+                for feed_dir in */; do
+                  [ -d "$feed_dir" ] || continue
+                  echo "Indexing $feed_dir..."
+                  cd "$feed_dir"
+                  # Generate signed APKINDEX using the private key
+                  apk index --output APKINDEX.tar.gz --sign /apk.pem *.apk 2>&1
+                  ls -la APKINDEX.tar.gz 2>/dev/null || echo "APKINDEX generation failed for $feed_dir"
+                  cd ..
+                done
+              '
+            else
+              echo "WARNING: apk.pem not found, generating unsigned APKINDEX"
+              docker run --rm -v "$(pwd)/dist/$PKG_DIR":/repo alpine:latest sh -c '
+                apk add --no-cache apk-tools 2>/dev/null
+                cd /repo
+                for feed_dir in */; do
+                  [ -d "$feed_dir" ] || continue
+                  echo "Indexing $feed_dir..."
+                  cd "$feed_dir"
+                  apk index --output APKINDEX.tar.gz *.apk 2>&1
+                  ls -la APKINDEX.tar.gz 2>/dev/null || echo "APKINDEX generation failed for $feed_dir"
+                  cd ..
+                done
+              '
+            fi
+          fi
 
       - name: Upload Output Folder
         uses: actions/upload-artifact@v7
