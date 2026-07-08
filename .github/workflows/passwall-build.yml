@@ -175,42 +175,30 @@ jobs:
           rsync -av bin/packages/${{ matrix.arch }}/luci-theme-peditx* dist/$PKG_DIR/ 2>/dev/null || true
           rsync -av bin/packages/${{ matrix.arch }}/luci-theme-carbonpx* dist/$PKG_DIR/ 2>/dev/null || true
           rsync -av bin/packages/${{ matrix.arch }}/luci-app-themeswitch* dist/$PKG_DIR/ 2>/dev/null || true
+          rsync -av bin/packages/${{ matrix.arch }}/peditxos-tools* dist/$PKG_DIR/ 2>/dev/null || true
           rsync -av --files-from=logs.txt logs/package/feeds/ dist/$LOG_DIR/ 2>/dev/null || true
           cp apk.pub ipk.pub dist/
 
           # Generate signed APKINDEX.tar.gz for APK-based OpenWrt (25.12+)
           if [[ "${{ matrix.ref }}" == "openwrt-25.12" || "${{ matrix.ref }}" == "main" ]]; then
             echo "Generating signed APKINDEX.tar.gz for ${{ matrix.ref }}..."
-            # Copy the private key to use for signing
-            if [ -f apk.pem ]; then
-              docker run --rm -v "$(pwd)/dist/$PKG_DIR":/repo -v "$(pwd)/apk.pem":/apk.pem alpine:latest sh -c '
-                apk add --no-cache apk-tools 2>/dev/null
-                cd /repo
-                for feed_dir in */; do
-                  [ -d "$feed_dir" ] || continue
-                  echo "Indexing $feed_dir..."
-                  cd "$feed_dir"
-                  # Generate signed APKINDEX using the private key
+            docker run --rm -v "$(pwd)/dist/$PKG_DIR":/repo -v "$(pwd)/apk.pem":/apk.pem -v "$(pwd)/apk.pub":/apk.pub alpine:latest sh -c '
+              apk add --no-cache apk-tools 2>/dev/null
+              cd /repo
+              for feed_dir in */; do
+                [ -d "$feed_dir" ] || continue
+                echo "Indexing $feed_dir..."
+                cd "$feed_dir"
+                if [ -f /apk.pem ]; then
                   apk index --output APKINDEX.tar.gz --sign /apk.pem *.apk 2>&1
-                  ls -la APKINDEX.tar.gz 2>/dev/null || echo "APKINDEX generation failed for $feed_dir"
-                  cd ..
-                done
-              '
-            else
-              echo "WARNING: apk.pem not found, generating unsigned APKINDEX"
-              docker run --rm -v "$(pwd)/dist/$PKG_DIR":/repo alpine:latest sh -c '
-                apk add --no-cache apk-tools 2>/dev/null
-                cd /repo
-                for feed_dir in */; do
-                  [ -d "$feed_dir" ] || continue
-                  echo "Indexing $feed_dir..."
-                  cd "$feed_dir"
+                  cp /apk.pub . 2>/dev/null
+                else
                   apk index --output APKINDEX.tar.gz *.apk 2>&1
-                  ls -la APKINDEX.tar.gz 2>/dev/null || echo "APKINDEX generation failed for $feed_dir"
-                  cd ..
-                done
-              '
-            fi
+                fi
+                ls -la APKINDEX.tar.gz 2>/dev/null || echo "APKINDEX generation failed for $feed_dir"
+                cd ..
+              done
+            '
           fi
 
       - name: Upload Output Folder
