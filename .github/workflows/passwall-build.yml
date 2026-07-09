@@ -16,6 +16,7 @@ jobs:
       matrix:
         ref:
           - main
+          - openwrt-21.02
           - openwrt-22.03
           - openwrt-23.05
           - openwrt-24.10
@@ -34,15 +35,19 @@ jobs:
 
           # sdks
           JSON='['
+          FIRST=1
 
           while read -r line;
           do
             ARCH=$(echo "$line" | cut -d " " -f 1)
-            JSON="${JSON}{\"arch\":\"${ARCH}\",\"ref\":\"${REF}\"},"
+
+            [[ $FIRST -ne 1 ]] && JSON="$JSON"','
+            FIRST=0
+
+            JSON="$JSON"'{"arch":"'"$ARCH"'","ref":"'"$REF"'"}'
           done <<< $(perl ./scripts/dump-target-info.pl architectures 2>/dev/null)
 
-          # Remove trailing comma and close array
-          JSON="${JSON%,}]"
+          JSON="$JSON"']'
           echo -e "\n---- sdks ----\n"
           echo "$JSON"
           echo -e "\n---- sdks ----\n"
@@ -104,16 +109,17 @@ jobs:
         run: |
           REF=${{ matrix.ref }}
           if [[ $REF == openwrt-* ]]; then
+            # openwrt-22.03 -> releases/packages-22.03
             VERSION=${REF//openwrt-/}
             pkg=releases/packages-$VERSION
             log=releases/faillogs-$VERSION
           else
+            # master -> snapshots/packages
             pkg=snapshots/packages
             log=snapshots/faillogs
           fi
           echo "pkg=$pkg" >> "$GITHUB_OUTPUT"
           echo "log=$log" >> "$GITHUB_OUTPUT"
-
 
       - name: Retrieve Version
         id: ver
@@ -122,6 +128,7 @@ jobs:
           vers=$(nvcmp -c nvchecker.toml -aj)
           jq -cr 'map("\(.name)=\(.newver)") | .[]' <<< $vers >> $GITHUB_OUTPUT
 
+      # Use go from master
       - name: Override golang version
         run: echo "GOLANG_COMMIT=master" >> $GITHUB_ENV
 
@@ -153,14 +160,10 @@ jobs:
           BUILD_LOG: 1
 
       - name: Finding failure logs
-        if: always()
+        working-directory: logs/package/feeds
         run: |
-          if [ -d "logs/package/feeds" ]; then
-            cd logs/package/feeds
-            sed -ne 's!^ *ERROR: package/feeds/\(passwall[^ ]*\) .*$!\1!p' ../error.txt | sort -u | xargs -r find > ../../../logs.txt 2>/dev/null || true
-            sed -ne 's!^ *ERROR: package/feeds/\(peditx[^ ]*\) .*$!\1!p' ../error.txt | sort -u | xargs -r find >> ../../../logs.txt 2>/dev/null || true
-            cat ../../../logs.txt 2>/dev/null || true
-          fi
+          sed -ne 's!^ *ERROR: package/feeds/\(passwall[^ ]*\) .*$!\1!p' ../error.txt | sort -u | xargs -r find > ../../../logs.txt
+          cat ../../../logs.txt
 
       - name: Prepare Output Folder
         run: |
@@ -168,13 +171,12 @@ jobs:
           LOG_DIR=${{ steps.get_build_path.outputs.log }}/${{ matrix.arch }}
           mkdir -p dist/$PKG_DIR dist/$LOG_DIR
 
-          rsync -av bin/packages/${{ matrix.arch }}/passwall* dist/$PKG_DIR/ 2>/dev/null || true
+          rsync -av bin/packages/${{ matrix.arch }}/passwall* dist/$PKG_DIR/
           rsync -av bin/packages/${{ matrix.arch }}/luci-theme-peditx* dist/$PKG_DIR/ 2>/dev/null || true
           rsync -av bin/packages/${{ matrix.arch }}/luci-theme-carbonpx* dist/$PKG_DIR/ 2>/dev/null || true
           rsync -av bin/packages/${{ matrix.arch }}/luci-app-themeswitch* dist/$PKG_DIR/ 2>/dev/null || true
           rsync -av bin/packages/${{ matrix.arch }}/peditxos-tools* dist/$PKG_DIR/ 2>/dev/null || true
-          rsync -av --files-from=logs.txt logs/package/feeds/ dist/$LOG_DIR/ 2>/dev/null || true
-          cp apk.pub ipk.pub dist/
+          rsync -av --files-from=logs.txt logs/package/feeds/ dist/$LOG_DIR/
 
       - name: Upload Output Folder
         uses: actions/upload-artifact@v7
