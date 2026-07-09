@@ -149,15 +149,6 @@ jobs:
             src-link|peditxos_tools|/feed/peditxos-tools
           KEY_BUILD: ${{ secrets.SIGN_PRIV_KEY }}
 
-      - name: Remove Rust packages for 21.02 (no rust feed)
-        if: matrix.ref == 'openwrt-21.02'
-        run: |
-          # These packages need rust/host which doesn't exist in 21.02
-          rm -rf feeds/passwall_packages/shadow-tls
-          rm -rf feeds/passwall_packages/shadowsocks-rust
-          rm -rf feeds/passwall_packages/sing-box
-          echo "Removed Rust-based packages for 21.02"
-
       - name: Build Package
         uses: moetayuko/gh-action-sdk@main
         env:
