@@ -146,9 +146,9 @@ jobs:
         env:
           ARCH: ${{ matrix.arch }}-${{ matrix.ref == 'openwrt-23.05' && '23.05.6' || matrix.ref }}
           EXTRA_FEEDS: >-
-            src-git|passwall_packages|https://github.com/Openwrt-Passwall/openwrt-passwall-packages^${{ steps.ver.outputs.packages }}
-            src-git|passwall_luci|https://github.com/Openwrt-Passwall/openwrt-passwall^${{ steps.ver.outputs.passwall }}
-            src-git|passwall2|https://github.com/Openwrt-Passwall/openwrt-passwall2^${{ steps.ver.outputs.passwall2 }}
+            src-git|passwall_packages|https://github.com/Openwrt-Passwall/openwrt-passwall-packages
+            src-git|passwall_luci|https://github.com/Openwrt-Passwall/openwrt-passwall
+            src-git|passwall2|https://github.com/Openwrt-Passwall/openwrt-passwall2
             src-git|peditx_themes|https://github.com/peditx/luci-theme-peditx^3bf84984046e540a388cbd402e17a8019f807793
             src-git|peditx_carbon|https://github.com/peditx/luci-theme-carbonpx^137ce1b0fd63d3d780ddd2dfd133b37a0268a2c9
             src-git|peditx_switch|https://github.com/peditx/luci-app-themeswitch^10866a17b9e235024b934d349d3daaa6921114a4
@@ -190,6 +190,7 @@ jobs:
       group: deploy
     runs-on: ubuntu-latest
     needs: release
+    if: ${{ !cancelled() }}
     steps:
       - name: Checkout
         uses: actions/checkout@v7
