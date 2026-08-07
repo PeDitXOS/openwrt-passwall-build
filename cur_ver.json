@@ -4,12 +4,12 @@
     "passwall": {
       "version": "26.8.1-1",
       "gitref": "refs/tags/26.8.1-1",
-      "revision": "37fa27540ed26caacc28a3a943f3e26e6687c7a4"
+      "revision": "b1bec1cf5b5e2ea858d60457ebe00c1388b6a55e"
     },
     "passwall2": {
-      "version": "26.7.16-1",
-      "gitref": "refs/tags/26.7.16-1",
-      "revision": "083dbfb2475aae9b7df36c4a8e13e4495ae54ec0"
+      "version": "26.8.7-1",
+      "gitref": "refs/tags/26.8.7-1",
+      "revision": "993184f190b6dd4dde4016bcab44485f82c2ba1f"
     }
   }
 }
