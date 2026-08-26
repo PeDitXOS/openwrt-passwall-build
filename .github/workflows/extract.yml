@@ -1,0 +1,25 @@
+name: Check Signing Key
+
+on:
+  workflow_dispatch:
+
+jobs:
+  check:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Extract public key from APK_PRIVATE_KEY
+        run: |
+          echo "${{ secrets.APK_PRIVATE_KEY }}" > /tmp/key.pem
+          openssl pkey -in /tmp/key.pem -pubout 2>/dev/null > apk_new.pub
+          echo "=== apk_new.pub ==="
+          cat apk_new.pub
+          echo ""
+          echo "=== Key ID ==="
+          openssl pkey -in /tmp/key.pem -pubout 2>/dev/null | openssl dgst -sha1 -binary | xxd -p -l 8
+          rm -f /tmp/key.pem
+
+      - name: Upload public key
+        uses: actions/upload-artifact@v4
+        with:
+          name: apk-public-key
+          path: apk_new.pub
