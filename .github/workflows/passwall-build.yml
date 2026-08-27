@@ -145,7 +145,7 @@ jobs:
           git checkout 40cae3c57bd87fda8e9c5040e756e57346b0ef99 2>/dev/null || true
 
       - name: Build Package
-        uses: moetayuko/gh-action-sdk@66c0fde
+        uses: moetayuko/gh-action-sdk@main
         env:
           ARCH: ${{ matrix.arch }}-${{ matrix.ref == 'openwrt-23.05' && '23.05.6' || matrix.ref }}
           EXTRA_FEEDS: >-
