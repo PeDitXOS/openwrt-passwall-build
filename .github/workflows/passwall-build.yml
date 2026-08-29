@@ -132,18 +132,6 @@ jobs:
       - name: Override golang version
         run: echo "GOLANG_COMMIT=master" >> $GITHUB_ENV
 
-      - name: Verify keys
-        run: |
-          echo "${{ secrets.SIGN_PRIV_KEY }}" > /tmp/sign_test.pem
-          echo "${{ secrets.APK_PRIVATE_KEY }}" > /tmp/apk_test.pem
-          echo "SIGN_PRIV_KEY first line:"
-          head -1 /tmp/sign_test.pem
-          echo "APK_PRIVATE_KEY first line:"
-          head -1 /tmp/apk_test.pem
-          openssl ec -in /tmp/sign_test.pem -pubout 2>&1 | head -1
-          openssl rsa -in /tmp/apk_test.pem -pubout 2>&1 | head -1
-          rm -f /tmp/sign_test.pem /tmp/apk_test.pem
-
       - name: Clone Private Feeds
         run: |
           git clone --depth 1 \
