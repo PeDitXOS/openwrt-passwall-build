@@ -7,9 +7,9 @@
       "revision": "219fca227535f1837cc322cfe504bdd7ada3f246"
     },
     "passwall2": {
-      "version": "26.10.1-1",
-      "gitref": "refs/tags/26.10.1-1",
-      "revision": "39d491e68a9d3c5287ef86e93a623ad857013750"
+      "version": "26.10.1-2",
+      "gitref": "refs/tags/26.10.1-2",
+      "revision": "5901e5fea7e19dfd4219cc72513957c266587680"
     }
   }
 }
