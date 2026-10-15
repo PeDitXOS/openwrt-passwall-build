@@ -2,9 +2,9 @@
   "version": 2,
   "data": {
     "passwall": {
-      "version": "26.10.4-1",
-      "gitref": "refs/tags/26.10.4-1",
-      "revision": "f7e86c56cf708b50b86cb9944fb593bda11481ca"
+      "version": "26.10.16-1",
+      "gitref": "refs/tags/26.10.16-1",
+      "revision": "b15b57993dc317e950947bd3bbcdd0b146ef5d24"
     },
     "passwall2": {
       "version": "26.10.1-2",
