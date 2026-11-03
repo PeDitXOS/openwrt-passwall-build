@@ -2,14 +2,14 @@
   "version": 2,
   "data": {
     "passwall": {
-      "version": "26.10.29-1",
-      "gitref": "refs/tags/26.10.29-1",
-      "revision": "6463f08e48ab4f2885337e27bfce8559934bcffe"
+      "version": "26.11.3-1",
+      "gitref": "refs/tags/26.11.3-1",
+      "revision": "0b969d5a49743a9725c8dc283b01753c5217dd0d"
     },
     "passwall2": {
-      "version": "26.10.29-1",
-      "gitref": "refs/tags/26.10.29-1",
-      "revision": "36752bf8e12bd979986bfee642e3ea402b2236a1"
+      "version": "26.11.3-1",
+      "gitref": "refs/tags/26.11.3-1",
+      "revision": "176e27cb8d9852ce9b30d2e180810b544d8fc9dc"
     }
   }
 }
